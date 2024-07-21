@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Task Manager</title>
+</head>
+<body>
+	<h1>Task List</h1>
+	<ul>
+		<!-- Loop through the tasks and display each one -->
+		{% for task in tasks %}
+			<li>{{ task.title }} - {{ task.priority }} - {{ task.due_date }}</li>
+			<a href="{% url 'update_task' task.id %}">Update</a>
+		{% endfor %}
+	</ul>
+</body>
+</html>

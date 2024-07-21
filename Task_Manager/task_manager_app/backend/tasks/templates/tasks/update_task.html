@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Update Task</title>
+</head>
+<body>
+	<h1>Update Task</h1>
+	<form method="post">
+		{% csrf_token %}
+		{{ form.as_p }}
+		<button type="submit">Save</button>
+	</form>
+	<a href="{% url 'task_list' %}">Back to Task List</a>
+	<!-- Assuming you have a task object with an ID -->
+	<a href="{% url 'update_task' task.id %}">Update Task</a>
+</body>
+</html>
