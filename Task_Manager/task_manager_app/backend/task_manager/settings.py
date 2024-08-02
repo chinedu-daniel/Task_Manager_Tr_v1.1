@@ -138,3 +138,6 @@ AUTHENTICATION_BACKENDS = [
         'tasks.auth_backend.CaseSensitiveModelBackend',
         'django.contrib.auth.backends.ModelBackend',
 ]
+
+LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRERCT_URL = '/'

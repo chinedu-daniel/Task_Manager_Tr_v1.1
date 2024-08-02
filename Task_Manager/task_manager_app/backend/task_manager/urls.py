@@ -17,14 +17,17 @@ Including another URLconf
 # task_manager/urls.py
 
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
+from . import views
 from django.urls import path, include
 from task_manager.views import home  # Ensure this path is correct
 
 urlpatterns = [
         path('admin/', admin.site.urls),
-        #path('', home, name='home'),  # This handles the home URL
-        path('login/', include('django.contrib.auth.urls')),
-        path('logout/', include('django.contrib.auth.urls')),
+        path('', views.home, name='home'),  # This handles the home URL
+        path('password_change/', auth_views.PasswordChangeView.as_view(), name='password_change'),
+        path('login/', auth_views.LoginView.as_view(), name='login'),
+        path('logout/', auth_views.LoginView.as_view(), name='logout'),
         path('password_change/', auth_views.PasswordChangeView.as_view(), name='password_change'),
         path('password_change/done/', auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),
         path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
@@ -34,5 +37,5 @@ urlpatterns = [
         path('profile/', include('profile.urls')),
         path('register/', include('register.urls')),
         path('accounts/', include('accounts.urls')),
-        path('tasks/', include('tasks.urls')),
+        path('task/', include('tasks.urls')),
 ]

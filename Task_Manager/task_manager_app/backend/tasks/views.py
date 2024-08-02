@@ -2,24 +2,31 @@
 
 from django.contrib.auth import authenticate, login as auth_login, logout
 from django.shortcuts import render, get_object_or_404, redirect
-from .forms import TaskForm, UserRegisterForm
+from .forms import TaskForm, UserRegisterForm, ProjectForm
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
-from .models import Task
+from .models import Task, Project
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.template import loader
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 
+@login_required
 def custom_logout(request):
     logout(request)
     return redirect('login') # Redirect to login page or wherever appropriate
 
+@login_required
 def home(request):
-    return render(request, 'home.html')
+    return render(request, 'task/home.html')
 
-def taskcreate(request):
+@login_required
+def some_view(request):
+    return render(request, 'template_name.html')
+
+@login_required
+def task_create(request):
     if request.method == "POST":
         form = TaskForm(request.POST)
         if form.is_valid():
@@ -29,10 +36,11 @@ def taskcreate(request):
             return redirect('task-list')
     else:
         form = TaskForm()
-    return render(request, 'tasks/task_form.html', {'form': form})
+    return render(request, 'task/task_form.html', {'form': form})
 
-def task_update(request, task_id):
-    task = get_object_or_404(Task, id=task_id)
+@login_required
+def task_update(request, pk):
+    task = get_object_or_404(Task, pk=pk)
     if request.method == "POST":
         form = TaskForm(request.POST, instance=task)
         if form.is_valid():
@@ -40,20 +48,22 @@ def task_update(request, task_id):
             return redirect('task-list')
     else:
         form = TaskForm(instance=task)
-    return render(request, 'tasks/task_form.html', {'form': form})
+    return render(request, 'task/task_update.html', {'task': task})
 
-def task_delete(request, task_id):
+@login_required
+def task_delete(request, pk):
     task = get_object_or_404(Task, id=task_id)
     if request.method == "POST":
         task.delete()
         return redirect('task-list')
-    return render(request, 'tasks/task_confirm_delete.html', {'task': task})
+    return render(request, 'task/task_confirm_delete.html', {'task': task})
 
 @login_required
 def profile(request):
     return render(request, 'profile.html')
 
-# USer registration vieiw
+# USer registration view
+@login_required
 def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST) # Create a form instance with POST data
@@ -62,56 +72,7 @@ def register(request):
             return redirect('home') # Redirect to a success page
     else:
         form = UserCreationForm() # Create an empty form instance
-    return render(request, 'tasks/register.html', {'form': form}) # Render the registration template with the form
-
-# This view handles creating a new task
-@login_required
-def create_task(request):
-    # If the request method is not POST, instantiate an empty form
-    form = TaskForm()
-    # Render the create_task.html template with the form
-    return render(request, 'tasks/task_form.html', {'form': form})
-
-# This view handles updating an existing task
-@login_required
-def update_task(request, task_id):
-    # Get the task by its ID and ensure it belongs to the logged-in user
-    task = get_object_or_404(Task, id=task_id)
-    # Check if the request method is POST
-    if request.method == 'POST':
-        # Instantiate a TaskForm with the POST data and the task instanc
-        form = TaskForm(request.POST, instance=task)
-        # Validate the form
-        if form.is_valid():
-            # Save the changes to the task
-            form.save()
-            # Add a success message
-            messages.success(request, 'Task updated successfull!y')
-            # Redirect to the task list view
-            return redirect('task_list')
-    else:
-        # If the request method is not POST, instantiate a form with the task instance
-        form = TaskForm(instance=task)
-
-    # Render the update_task.html template with the form
-    return render(request, 'tasks/update_task.html', {'form': form, 'task': task})
-
-# update_url = reverse('update_task', args=[task.id])
-
-# This view handles deleting an existing task
-@login_required
-def delete_task(request, task_id):
-    # Get the task by its ID and ensure it belongs to the logged-in user
-    task = get_object_or_404(Task, id=task_id)
-    # Check if the request method is POST
-    if request.method == 'POST':
-        # Delete the task from the database
-        task.delete()
-        # Redirect to the task list view
-        return redirect('task_list')
-
-    # Render the delete_task.html template with the task
-    return render(request, 'tasks/delete_task.html', {'task': task})
+    return render(request, 'task/register.html', {'form': form}) # Render the registration template with the form
 
 def login(request):
     if request.method == 'POST':
@@ -122,7 +83,7 @@ def login(request):
             return redirect('home')
     else:
         form = AuthenticationForm()
-    return render(request, 'tasks/home.html', {'form': form}) # Show error message
+    return render(request, 'task/home.html', {'form': form}) # Show error message
 
 def user_logout(request):
     logout(request)
@@ -130,7 +91,7 @@ def user_logout(request):
 
 @login_required
 def profile(request):
-    return render(request, 'tasks/profile.html')
+    return render(request, 'task/profile.html')
 
 def home(request):
     return render(request, 'task/home.html') # Render the login page
@@ -138,11 +99,11 @@ def home(request):
 # view to display the list of tasks
 def task_list(request):
     tasks = Task.objects.all() # Retrieve all tasks from the database
-    return render(request, 'tasks/task_list.html', {'tasks': tasks}) # Render the task list template with the tasks
+    return render(request, 'task/task_list.html') # Render the task list template with the tasks
 
 class TaskListView(ListView):
     model = Task
-    template_name = 'tasks/task_list.html'
+    template_name = 'task/task_list.html'
     context_object_name = 'tasks'
 
 class TaskCreateView(CreateView):

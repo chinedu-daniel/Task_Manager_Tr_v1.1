@@ -1,7 +1,7 @@
 # forms.py
 
 from django import forms
-from .models import Task
+from .models import Task, Project
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
@@ -18,3 +18,8 @@ class TaskForm(forms.ModelForm):
         model = Task
         # Define the fields to include in the form
         fields = ['name', 'description', 'due_date', 'completed']
+
+class ProjectForm(forms.ModelForm):
+    class Meta:
+        model = Project
+        fields = ['name', 'description']
